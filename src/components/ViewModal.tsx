@@ -1,10 +1,28 @@
-import { Box, Chip, IconButton, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
+  SelectChangeEvent,
+  Typography,
+} from "@mui/material";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { Task, TaskView } from "../types/kanban";
+import { Column, Priority, PriorityKey, Task, TaskView } from "../types/kanban";
+import { Priorities, Statuses } from "../utils/constants";
 interface ViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: TaskView | null;
+  handleTaskMove: (taskId: string, source: Column, target: Column) => void;
+  handlePriorityUpdate: (
+    taskId: string,
+    column: Column,
+    newPriority: PriorityKey
+  ) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -19,7 +37,13 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-const ViewModal = ({ isOpen, onClose, data }: ViewModalProps) => {
+const ViewModal = ({
+  isOpen,
+  onClose,
+  data,
+  handleTaskMove,
+  handlePriorityUpdate,
+}: ViewModalProps) => {
   if (!data) return <></>;
   return (
     <Modal
@@ -32,36 +56,63 @@ const ViewModal = ({ isOpen, onClose, data }: ViewModalProps) => {
         <Typography variant="h6" component="h2">
           {data.title}
         </Typography>
-        <Typography color="text.secondary">Status:{data.status}</Typography>
         <Box
           sx={{
             display: "flex",
-            textAlign: "center",
-            gap: 1,
+            flexDirection: "row",
+            gap: "5px",
+            marginTop: 2,
+            alignItems: "flex-end",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            <Typography color="text.secondary">Priority:</Typography>
-            <Chip
-              style={{ marginTop: "0px" }}
-              label={data.priority}
-              size="small"
-              color={
-                data.priority === "high"
-                  ? "error"
-                  : data.priority === "medium"
-                  ? "warning"
-                  : "default"
-              }
-              sx={{ mt: 1 }}
-            />
-          </Box>
+          <FormControl variant="standard" size="small">
+            <InputLabel id="modal-select-status">Status</InputLabel>
+            <Select
+              value={data.status}
+              label="Status"
+              labelId="modal-select-status"
+              onChange={(value: SelectChangeEvent) => {
+                handleTaskMove(
+                  data.id,
+                  data.status,
+                  value.target.value as Column
+                );
+              }}
+            >
+              {Statuses.map((status, id) => (
+                <MenuItem key={id} value={status.column}>
+                  {status.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="standard" size="small">
+            <InputLabel id="modal-select-priority">Priority</InputLabel>
+            <Select
+              value={data.priority}
+              label="Priority"
+              id="modal-select-priority"
+              onChange={(value: SelectChangeEvent) => {
+                handlePriorityUpdate(
+                  data.id,
+                  data.status,
+                  value.target.value as PriorityKey
+                );
+              }}
+            >
+              {Priorities.map((priority, id) => (
+                <MenuItem key={id} value={priority.key}>
+                  <Chip
+                    style={{ marginTop: "0px" }}
+                    label={priority.key}
+                    size="small"
+                    color={priority.color}
+                    sx={{ mt: 1 }}
+                  />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
         <Typography sx={{ mt: 2 }}>{data.description}</Typography>
 

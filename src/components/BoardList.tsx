@@ -10,8 +10,12 @@ import {
 } from "@mui/material";
 import { Column, DragItem, Task, TaskView } from "../types/kanban";
 import { styled } from "@mui/material/styles";
-import { Delete as DeleteIcon, Edit as EditIcon ,RemoveRedEye} from "@mui/icons-material";
-import { truncateString } from "../utils/helpers";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  RemoveRedEye,
+} from "@mui/icons-material";
+import { getColor, truncateString } from "../utils/helpers";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
@@ -25,7 +29,6 @@ const StyledList = styled(Box)(({ theme }) => ({
   overflowY: "scroll",
 }));
 
-
 interface BoardListProps {
   title: string;
   tasks: Task[];
@@ -36,8 +39,6 @@ interface BoardListProps {
   onTaskMove: (taskId: string, source: Column, target: Column) => void;
   onTaskDelete: (taskId: string, column: Column) => void;
 }
-
-
 
 const BoardList: React.FC<BoardListProps> = ({
   title,
@@ -107,19 +108,13 @@ const BoardList: React.FC<BoardListProps> = ({
                     <Chip
                       label={task.priority}
                       size="small"
-                      color={
-                        task.priority === "high"
-                          ? "error"
-                          : task.priority === "medium"
-                          ? "warning"
-                          : "default"
-                      }
+                      color={getColor(task.priority)}
                       sx={{ mt: 1 }}
                     />
                   </Box>
                   <IconButton
                     size="small"
-                    onClick={() => onViewTask({ ...task, status: title })}
+                    onClick={() => onViewTask({ ...task, status: listKey })}
                     color="default"
                   >
                     <RemoveRedEye fontSize="small" />

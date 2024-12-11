@@ -12,7 +12,13 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 
-import { Task, Column, BoardState, TaskView } from "./types/kanban";
+import {
+  Task,
+  Column,
+  BoardState,
+  TaskView,
+  PriorityKey,
+} from "./types/kanban";
 import BoardList from "./components/BoardList";
 import ViewModal from "./components/ViewModal";
 
@@ -30,11 +36,23 @@ const KanbanBoard: React.FC = () => {
     doing: [],
     done: [],
   });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskView | null>(null);
 
   const handleTaskMove = useCallback(
     (taskId: string, source: Column, target: Column) => {
+      setSelectedTask((prev) => {
+        if (prev && source !== target && prev.id === taskId) {
+          return {
+            ...prev,
+            status: target,
+          };
+        }
+        return null;
+      });
       setBoards((prev) => {
         const task = prev[source].find((t) => t.id === taskId);
+        console.log("task", task);
         if (source === target || !task) return prev;
 
         return {
@@ -43,6 +61,26 @@ const KanbanBoard: React.FC = () => {
           [target]: [...prev[target], task],
         };
       });
+    },
+    []
+  );
+  const handleTaskPriorityUpdate = useCallback(
+    (taskId: string, column: Column, newPriority: PriorityKey) => {
+      setSelectedTask((prev) => {
+        if (prev && prev.id === taskId) {
+          return {
+            ...prev,
+            priority: newPriority,
+          };
+        }
+        return null;
+      });
+      setBoards((prev) => ({
+        ...prev,
+        [column]: prev[column].map((task) =>
+          task.id === taskId ? { ...task, priority: newPriority } : task
+        ),
+      }));
     },
     []
   );
@@ -74,8 +112,6 @@ const KanbanBoard: React.FC = () => {
     },
     [newTask]
   );
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<TaskView | null>(null);
   const onCloseModal = useCallback(() => {
     setIsModalVisible(false);
     setSelectedTask(null);
@@ -88,10 +124,12 @@ const KanbanBoard: React.FC = () => {
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <CssBaseline />
       <ViewModal
+        handleTaskMove={handleTaskMove}
         isOpen={isModalVisible}
         onClose={() => {
           onCloseModal();
         }}
+        handlePriorityUpdate={handleTaskPriorityUpdate}
         data={selectedTask}
         onEdit={() => {}}
         onDelete={() => {}}
