@@ -3,15 +3,15 @@ import {
   Chip,
   FormControl,
   IconButton,
+  Input,
   InputLabel,
   MenuItem,
   Modal,
   Select,
   SelectChangeEvent,
-  Typography,
 } from "@mui/material";
 import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { Column, Priority, PriorityKey, Task, TaskView } from "../types/kanban";
+import { Column, PriorityKey, TaskView } from "../types/kanban";
 import { Priorities, Statuses } from "../utils/constants";
 interface ViewModalProps {
   isOpen: boolean;
@@ -23,8 +23,12 @@ interface ViewModalProps {
     column: Column,
     newPriority: PriorityKey
   ) => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  handleTitleChange: (taskId: string, column: Column, newTitle: string) => void;
+  handleDescriptionChange: (
+    taskId: string,
+    column: Column,
+    newDescription: string
+  ) => void;
 }
 const style = {
   position: "absolute",
@@ -43,6 +47,8 @@ const ViewModal = ({
   data,
   handleTaskMove,
   handlePriorityUpdate,
+  handleTitleChange,
+  handleDescriptionChange,
 }: ViewModalProps) => {
   if (!data) return <></>;
   return (
@@ -53,9 +59,27 @@ const ViewModal = ({
       aria-describedby="task-modal-description"
     >
       <Box sx={style}>
-        <Typography variant="h6" component="h2">
-          {data.title}
-        </Typography>
+        <FormControl variant="standard" fullWidth>
+          <InputLabel htmlFor="component-simple">Title</InputLabel>
+          <Input
+            fullWidth
+            id="component-simple"
+            onFocus={(e) => {
+              e.currentTarget.value = data.title;
+            }}
+            onBlur={(e) => {
+              if (
+                e.currentTarget.value === "" &&
+                e.currentTarget.value === data.title
+              ) {
+                e.currentTarget.value = data.title;
+                return;
+              }
+              handleTitleChange(data.id, data.status, e.currentTarget.value);
+            }}
+            defaultValue={data.title}
+          />
+        </FormControl>
         <Box
           sx={{
             display: "flex",
@@ -114,7 +138,33 @@ const ViewModal = ({
             </Select>
           </FormControl>
         </Box>
-        <Typography sx={{ mt: 2 }}>{data.description}</Typography>
+        <FormControl variant="standard" fullWidth>
+          <InputLabel htmlFor="modal-input-description">Description</InputLabel>
+          <Input
+            fullWidth
+            id="modal-input-description"
+            multiline
+            minRows={4}
+            onFocus={(e) => {
+              e.currentTarget.value = data?.description ?? "";
+            }}
+            onBlur={(e) => {
+              if (
+                e.currentTarget.value === "" &&
+                e.currentTarget.value === data.description
+              ) {
+                e.currentTarget.value = data.description;
+                return;
+              }
+              handleDescriptionChange(
+                data.id,
+                data.status,
+                e.currentTarget.value
+              );
+            }}
+            defaultValue={data.description}
+          />
+        </FormControl>
 
         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
           <IconButton size="small" onClick={() => {}} color="default">

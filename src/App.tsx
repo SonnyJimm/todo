@@ -84,7 +84,48 @@ const KanbanBoard: React.FC = () => {
     },
     []
   );
-
+  const handleTaskTitleUpdate = useCallback(
+    (taskId: string, column: Column, newTitle: string) => {
+      if (!newTitle.trim()) return;
+      setSelectedTask((prev) => {
+        if (prev && prev.id === taskId) {
+          return {
+            ...prev,
+            title: newTitle,
+          };
+        }
+        return null;
+      });
+      setBoards((prev) => ({
+        ...prev,
+        [column]: prev[column].map((task) =>
+          task.id === taskId ? { ...task, title: newTitle } : task
+        ),
+      }));
+    },
+    []
+  );
+  const handleTaskDescriptionUpdate = useCallback(
+    (taskId: string, column: Column, newDescription: string) => {
+      if (!newDescription.trim()) return;
+      setSelectedTask((prev) => {
+        if (prev && prev.id === taskId) {
+          return {
+            ...prev,
+            description: newDescription,
+          };
+        }
+        return null;
+      });
+      setBoards((prev) => ({
+        ...prev,
+        [column]: prev[column].map((task) =>
+          task.id === taskId ? { ...task, description: newDescription } : task
+        ),
+      }));
+    },
+    []
+  );
   const handleTaskDelete = useCallback((taskId: string, column: Column) => {
     setBoards((prev) => ({
       ...prev,
@@ -129,10 +170,10 @@ const KanbanBoard: React.FC = () => {
         onClose={() => {
           onCloseModal();
         }}
+        handleDescriptionChange={handleTaskDescriptionUpdate}
         handlePriorityUpdate={handleTaskPriorityUpdate}
+        handleTitleChange={handleTaskTitleUpdate}
         data={selectedTask}
-        onEdit={() => {}}
-        onDelete={() => {}}
       />
       <Typography variant="h4" sx={{ mb: 4 }}>
         Kanban Board
