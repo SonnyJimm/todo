@@ -1,8 +1,8 @@
 import {
   Box,
+  Button,
   Chip,
   FormControl,
-  IconButton,
   Input,
   InputLabel,
   MenuItem,
@@ -10,7 +10,6 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { Column, PriorityKey, TaskView } from "../types/kanban";
 import { Priorities, Statuses } from "../utils/constants";
 interface ViewModalProps {
@@ -35,6 +34,9 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
+  display: "flex",
+  gap: 2,
+  flexDirection: "column",
   width: 400,
   bgcolor: "background.paper",
   borderRadius: "4px",
@@ -144,7 +146,8 @@ const ViewModal = ({
             fullWidth
             id="modal-input-description"
             multiline
-            minRows={4}
+            minRows={2}
+            maxRows={10}
             onFocus={(e) => {
               e.currentTarget.value = data?.description ?? "";
             }}
@@ -166,13 +169,15 @@ const ViewModal = ({
           />
         </FormControl>
 
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-          <IconButton size="small" onClick={() => {}} color="default">
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => {}} color="error">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column-reverse",
+            gap: 2,
+            mt: 2,
+          }}
+        >
+          <Button onClick={onClose}>Close</Button>
         </Box>
       </Box>
     </Modal>

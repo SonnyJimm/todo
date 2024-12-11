@@ -134,22 +134,11 @@ const KanbanBoard: React.FC = () => {
   }, []);
 
   const addNewTask = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!newTask.trim()) return;
-
-      const task: Task = {
-        id: Date.now().toString(),
-        title: newTask,
-        priority: "medium",
-        description: "",
-      };
-
+    (e: Omit<Task, "id">, column: Column) => {
       setBoards((prev) => ({
         ...prev,
-        todo: [...prev.todo, task],
+        [column]: [{ id: Date.now().toString(), ...e }, ...prev[column]],
       }));
-      setNewTask("");
     },
     [newTask]
   );
@@ -179,7 +168,7 @@ const KanbanBoard: React.FC = () => {
         Kanban Board
       </Typography>
 
-      <Box component="form" onSubmit={addNewTask} sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4 }}>
         <Stack direction="row" spacing={2}>
           <TextField
             value={newTask}
@@ -201,10 +190,10 @@ const KanbanBoard: React.FC = () => {
           <BoardList
             title="To Do"
             tasks={boards.todo}
+            onAddTask={addNewTask}
             listKey="todo"
             onViewTask={onOpenModal}
             color="primary.main"
-            onUpdateTask={(task) => {}}
             onTaskMove={handleTaskMove}
             onTaskDelete={handleTaskDelete}
           />
@@ -214,9 +203,9 @@ const KanbanBoard: React.FC = () => {
             title="In Progress"
             tasks={boards.doing}
             listKey="doing"
+            onAddTask={addNewTask}
             onViewTask={onOpenModal}
             color="warning.main"
-            onUpdateTask={(task) => {}}
             onTaskMove={handleTaskMove}
             onTaskDelete={handleTaskDelete}
           />
@@ -226,9 +215,9 @@ const KanbanBoard: React.FC = () => {
             title="Done"
             tasks={boards.done}
             listKey="done"
+            onAddTask={addNewTask}
             onViewTask={onOpenModal}
             color="success.main"
-            onUpdateTask={(task) => {}}
             onTaskMove={handleTaskMove}
             onTaskDelete={handleTaskDelete}
           />

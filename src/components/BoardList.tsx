@@ -8,14 +8,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
 import { Column, DragItem, Task, TaskView } from "../types/kanban";
 import { styled } from "@mui/material/styles";
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  RemoveRedEye,
-} from "@mui/icons-material";
+import { Delete as DeleteIcon, RemoveRedEye } from "@mui/icons-material";
 import { getColor, truncateString } from "../utils/helpers";
+import { useId, useState } from "react";
+import NewModal from "./NewModal";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
@@ -23,6 +22,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   height: "75vh",
   display: "flex",
   flexDirection: "column",
+  gap: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
 }));
 const StyledList = styled(Box)(({ theme }) => ({
@@ -34,10 +34,10 @@ interface BoardListProps {
   tasks: Task[];
   listKey: Column;
   color: string;
-  onUpdateTask: (task: Task) => void;
   onViewTask: (task: TaskView) => void;
   onTaskMove: (taskId: string, source: Column, target: Column) => void;
   onTaskDelete: (taskId: string, column: Column) => void;
+  onAddTask: (e: Omit<Task, "id">, column: Column) => void;
 }
 
 const BoardList: React.FC<BoardListProps> = ({
@@ -48,7 +48,9 @@ const BoardList: React.FC<BoardListProps> = ({
   onTaskMove,
   onViewTask,
   onTaskDelete,
+  onAddTask,
 }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, task: Task) => {
     e.dataTransfer.setData(
       "application/json",
@@ -70,6 +72,12 @@ const BoardList: React.FC<BoardListProps> = ({
       console.error("Drop error:", error);
     }
   };
+  const openModal = () => {
+    setIsModalVisible(true);
+  };
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <StyledPaper
@@ -77,16 +85,41 @@ const BoardList: React.FC<BoardListProps> = ({
       onDrop={handleDrop}
       elevation={0}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          mb: 2,
-          color: color,
-          fontWeight: "bold",
+      <NewModal
+        isOpen={isModalVisible}
+        onClose={closeModal}
+        title={title}
+        listKey={listKey}
+        onSubmit={(task) => {
+          onAddTask(task, listKey);
         }}
-      >
-        {title}
-      </Typography>
+      />
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+
+            alignItems: "flex-end",
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              color: color,
+              fontWeight: "bold",
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
+          <IconButton size="small" color="primary" onClick={openModal}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
       <StyledList>
         <Stack spacing={2}>
           {tasks.map((task) => (
