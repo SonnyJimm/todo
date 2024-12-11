@@ -31,9 +31,10 @@ import {
 import BoardList from "./components/BoardList";
 import ViewModal from "./components/ViewModal";
 import { Priorities } from "./utils/constants";
+import useStorage from "./hook/useStorage";
 
 const KanbanBoard: React.FC = () => {
-  const [initBoard, setInitBoard] = useState<BoardState>({
+  const [initBoard, setInitBoard] = useStorage("board", {
     todo: [
       {
         id: "1",
