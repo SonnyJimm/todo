@@ -5,21 +5,7 @@ import React, {
   useEffect,
 } from "react";
 
-import {
-  Typography,
-  Box,
-  TextField,
-  Stack,
-  Container,
-  Grid,
-  CssBaseline,
-  FormControl,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
-import { Search as SearchIcon } from "@mui/icons-material";
+import { Typography, Box, Container, Grid, CssBaseline } from "@mui/material";
 
 import {
   Task,
@@ -30,8 +16,8 @@ import {
 } from "./types/kanban";
 import BoardList from "./components/BoardList";
 import ViewModal from "./components/ViewModal";
-import { Priorities } from "./utils/constants";
 import useStorage from "./hook/useStorage";
+import Search from "./components/Search/Search";
 
 const KanbanBoard: React.FC = () => {
   const [initBoard, setInitBoard] = useStorage("board", {
@@ -200,47 +186,21 @@ const KanbanBoard: React.FC = () => {
       </Typography>
 
       <Box sx={{ mb: 4 }}>
-        <Stack direction="row" spacing={2}>
-          <TextField
-            placeholder="Search"
-            variant="outlined"
-            size="small"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
-            sx={{ maxWidth: 400 }}
-          />
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <FormControl size="small">
-              <Select
-                multiple
-                displayEmpty
-                value={[""]}
-                sx={{ minWidth: 120 }}
-                startAdornment={<SearchIcon sx={{ mr: 1 }} />}
-              >
-                <MenuItem value="">Filters</MenuItem>
-                {Priorities.map((priority, id) => (
-                  <MenuItem key={id}>
-                    <FormControlLabel
-                      checked={priorityFilters.includes(priority.key)}
-                      control={<Checkbox />}
-                      onChange={() => {
-                        setPriorityFilters((prev) => {
-                          return priorityFilters.includes(priority.key)
-                            ? prev.filter((p) => p !== priority.key)
-                            : [...prev, priority.key];
-                        });
-                      }}
-                      label={priority.key}
-                      value={priority.key}
-                    />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </Stack>
+        <Search
+          searchTerm={searchTerm}
+          priorityFilters={priorityFilters}
+          updateSearchTerm={(val) => {
+            setSearchTerm(val);
+          }}
+          updatePriorityFilters={(key, val) => {
+            setPriorityFilters((prev) => {
+              if (val) {
+                return [...prev, key];
+              }
+              return prev.filter((k) => k !== key);
+            });
+          }}
+        />
       </Box>
 
       <Grid container spacing={3}>

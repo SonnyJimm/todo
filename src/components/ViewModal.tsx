@@ -10,39 +10,11 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { Column, PriorityKey, TaskView } from "../types/kanban";
+import { Column, PriorityKey } from "../types/kanban";
 import { Priorities, Statuses } from "../utils/constants";
-interface ViewModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  data: TaskView | null;
-  handleTaskMove: (taskId: string, source: Column, target: Column) => void;
-  handlePriorityUpdate: (
-    taskId: string,
-    column: Column,
-    newPriority: PriorityKey
-  ) => void;
-  handleTitleChange: (taskId: string, column: Column, newTitle: string) => void;
-  handleDescriptionChange: (
-    taskId: string,
-    column: Column,
-    newDescription: string
-  ) => void;
-}
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  display: "flex",
-  gap: 2,
-  flexDirection: "column",
-  width: 400,
-  bgcolor: "background.paper",
-  borderRadius: "4px",
-  boxShadow: 24,
-  p: 4,
-};
+import { ModelStyle } from "../styles/model.style";
+import { ViewModalProps } from "../types/props";
+
 const ViewModal = ({
   isOpen,
   onClose,
@@ -60,7 +32,7 @@ const ViewModal = ({
       aria-labelledby="task-modal-title"
       aria-describedby="task-modal-description"
     >
-      <Box sx={style}>
+      <Box sx={ModelStyle.formWrapper}>
         <FormControl variant="standard" fullWidth>
           <InputLabel htmlFor="component-simple">Title</InputLabel>
           <Input
@@ -82,15 +54,7 @@ const ViewModal = ({
             defaultValue={data.title}
           />
         </FormControl>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "5px",
-            marginTop: 2,
-            alignItems: "flex-end",
-          }}
-        >
+        <Box sx={ModelStyle.statusWrapper}>
           <FormControl variant="standard" size="small">
             <InputLabel id="modal-select-status">Status</InputLabel>
             <Select

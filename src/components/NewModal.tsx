@@ -11,40 +11,19 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { useFormik } from "formik";
-import { Column, PriorityKey, Task } from "../types/kanban";
+import { PriorityKey } from "../types/kanban";
 import { Priorities } from "../utils/constants";
 import { validationSchema } from "../utils/helpers";
+import { NewTaskModalProps } from "../types/props";
+import { ModelStyle } from "../styles/model.style";
 
-interface NewModalProps {
-  isOpen: boolean;
-  title: string;
-  listKey: Column;
-  onClose: () => void;
-  onSubmit: (task: Omit<Task, "id">, listKey: Column) => void;
-}
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  display: "flex",
-  gap: 2,
-  flexDirection: "column",
-  width: 400,
-  bgcolor: "background.paper",
-  borderRadius: "4px",
-  boxShadow: 24,
-  p: 4,
-};
-
-const NewModal = ({
+const NewTaskModal = ({
   isOpen,
   onClose,
   onSubmit,
   listKey,
   title,
-}: NewModalProps) => {
+}: NewTaskModalProps) => {
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -76,7 +55,11 @@ const NewModal = ({
       aria-labelledby="task-modal-title"
       aria-describedby="task-modal-description"
     >
-      <Box sx={style} component="form" onSubmit={formik.handleSubmit}>
+      <Box
+        sx={ModelStyle.formWrapper}
+        component="form"
+        onSubmit={formik.handleSubmit}
+      >
         <FormControl
           variant="standard"
           fullWidth
@@ -95,15 +78,7 @@ const NewModal = ({
           )}
         </FormControl>
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "5px",
-            marginTop: 2,
-            alignItems: "flex-end",
-          }}
-        >
+        <Box sx={ModelStyle.statusWrapper}>
           <FormControl variant="standard" size="small" disabled>
             <InputLabel id="status-label">Status</InputLabel>
             <Select
@@ -185,4 +160,4 @@ const NewModal = ({
   );
 };
 
-export default NewModal;
+export default NewTaskModal;

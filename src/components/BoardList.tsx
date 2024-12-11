@@ -4,41 +4,18 @@ import {
   CardContent,
   Chip,
   IconButton,
-  Paper,
   Stack,
   Typography,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { Column, DragItem, Task, TaskView } from "../types/kanban";
-import { styled } from "@mui/material/styles";
+import { DragItem, Task } from "../types/kanban";
 import { Delete as DeleteIcon, RemoveRedEye } from "@mui/icons-material";
 import { getColor, truncateString } from "../utils/helpers";
-import { useState } from "react";
+import { memo, useState } from "react";
 import NewModal from "./NewModal";
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.grey[100],
-  padding: theme.spacing(2),
-  height: "75vh",
-  display: "flex",
-  flexDirection: "column",
-  gap: theme.spacing(2),
-  borderRadius: theme.shape.borderRadius,
-}));
-const StyledList = styled(Box)(({ theme }) => ({
-  overflowY: "scroll",
-}));
-
-interface BoardListProps {
-  title: string;
-  tasks: Task[];
-  listKey: Column;
-  color: string;
-  onViewTask: (task: TaskView) => void;
-  onTaskMove: (taskId: string, source: Column, target: Column) => void;
-  onTaskDelete: (taskId: string, column: Column) => void;
-  onAddTask: (e: Omit<Task, "id">, column: Column) => void;
-}
+import { StyledList, StyledPaper } from "./StyledComponents";
+import { BoardListProps } from "../types/props";
+import { BoardStyle } from "../styles/Boards.style";
 
 const BoardList: React.FC<BoardListProps> = ({
   title,
@@ -94,15 +71,8 @@ const BoardList: React.FC<BoardListProps> = ({
           onAddTask(task, listKey);
         }}
       />
-      <Box sx={{ display: "flex", flexDirection: "row" }}>
-        <Box
-          sx={{
-            display: "flex",
-            flex: 1,
-
-            alignItems: "flex-end",
-          }}
-        >
+      <Box sx={BoardStyle.boardHeader}>
+        <Box sx={BoardStyle.titleWrapper}>
           <Typography
             variant="h5"
             sx={{
@@ -113,7 +83,7 @@ const BoardList: React.FC<BoardListProps> = ({
             {title}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
+        <Box sx={BoardStyle.actionsWrapper}>
           <IconButton size="small" color="primary" onClick={openModal}>
             <AddIcon />
           </IconButton>
@@ -127,15 +97,10 @@ const BoardList: React.FC<BoardListProps> = ({
               key={task.id}
               draggable
               onDragStart={(e) => handleDragStart(e, task)}
-              sx={{
-                cursor: "move",
-                "&:hover": {
-                  boxShadow: 3,
-                },
-              }}
+              sx={BoardStyle.card}
             >
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+                <Box sx={BoardStyle.contentWrapper}>
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="h6">{task.title}</Typography>
                     <Chip
@@ -173,4 +138,4 @@ const BoardList: React.FC<BoardListProps> = ({
     </StyledPaper>
   );
 };
-export default BoardList;
+export default memo(BoardList);
