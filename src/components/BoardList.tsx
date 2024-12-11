@@ -13,7 +13,7 @@ import { Column, DragItem, Task, TaskView } from "../types/kanban";
 import { styled } from "@mui/material/styles";
 import { Delete as DeleteIcon, RemoveRedEye } from "@mui/icons-material";
 import { getColor, truncateString } from "../utils/helpers";
-import { useId, useState } from "react";
+import { useState } from "react";
 import NewModal from "./NewModal";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({

@@ -1,16 +1,25 @@
-// src/components/KanbanBoard.tsx
-import React, { useState, useCallback } from "react";
+import React, {
+  useState,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+} from "react";
+
 import {
   Typography,
   Box,
   TextField,
-  Button,
   Stack,
   Container,
   Grid,
   CssBaseline,
+  FormControl,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Search as SearchIcon } from "@mui/icons-material";
 
 import {
   Task,
@@ -21,10 +30,10 @@ import {
 } from "./types/kanban";
 import BoardList from "./components/BoardList";
 import ViewModal from "./components/ViewModal";
+import { Priorities } from "./utils/constants";
 
 const KanbanBoard: React.FC = () => {
-  const [newTask, setNewTask] = useState("");
-  const [boards, setBoards] = useState<BoardState>({
+  const [initBoard, setInitBoard] = useState<BoardState>({
     todo: [
       {
         id: "1",
@@ -36,6 +45,30 @@ const KanbanBoard: React.FC = () => {
     doing: [],
     done: [],
   });
+  const [boards, setBoards] = useState<BoardState>(initBoard);
+  const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+  const [priorityFilters, setPriorityFilters] = useState<PriorityKey[]>([
+    "low",
+    "medium",
+    "high",
+  ]);
+  useEffect(() => {
+    if (!deferredSearchTerm && priorityFilters.length === 3) {
+      setBoards(initBoard);
+      return;
+    }
+    const filterfn = (task: Task) =>
+      task.title.toLowerCase().includes(deferredSearchTerm.toLowerCase()) &&
+      priorityFilters.includes(task.priority);
+    const filteredBoard = {
+      todo: initBoard.todo.filter(filterfn),
+      doing: initBoard.doing.filter(filterfn),
+      done: initBoard.done.filter(filterfn),
+    };
+    console.log("filter", priorityFilters);
+    setBoards(filteredBoard);
+  }, [deferredSearchTerm, priorityFilters, initBoard]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskView | null>(null);
 
@@ -50,7 +83,7 @@ const KanbanBoard: React.FC = () => {
         }
         return null;
       });
-      setBoards((prev) => {
+      setInitBoard((prev) => {
         const task = prev[source].find((t) => t.id === taskId);
         console.log("task", task);
         if (source === target || !task) return prev;
@@ -75,7 +108,7 @@ const KanbanBoard: React.FC = () => {
         }
         return null;
       });
-      setBoards((prev) => ({
+      setInitBoard((prev) => ({
         ...prev,
         [column]: prev[column].map((task) =>
           task.id === taskId ? { ...task, priority: newPriority } : task
@@ -96,7 +129,7 @@ const KanbanBoard: React.FC = () => {
         }
         return null;
       });
-      setBoards((prev) => ({
+      setInitBoard((prev) => ({
         ...prev,
         [column]: prev[column].map((task) =>
           task.id === taskId ? { ...task, title: newTitle } : task
@@ -117,7 +150,7 @@ const KanbanBoard: React.FC = () => {
         }
         return null;
       });
-      setBoards((prev) => ({
+      setInitBoard((prev) => ({
         ...prev,
         [column]: prev[column].map((task) =>
           task.id === taskId ? { ...task, description: newDescription } : task
@@ -127,21 +160,18 @@ const KanbanBoard: React.FC = () => {
     []
   );
   const handleTaskDelete = useCallback((taskId: string, column: Column) => {
-    setBoards((prev) => ({
+    setInitBoard((prev) => ({
       ...prev,
       [column]: prev[column].filter((task) => task.id !== taskId),
     }));
   }, []);
 
-  const addNewTask = useCallback(
-    (e: Omit<Task, "id">, column: Column) => {
-      setBoards((prev) => ({
-        ...prev,
-        [column]: [{ id: Date.now().toString(), ...e }, ...prev[column]],
-      }));
-    },
-    [newTask]
-  );
+  const addNewTask = useCallback((e: Omit<Task, "id">, column: Column) => {
+    setInitBoard((prev) => ({
+      ...prev,
+      [column]: [{ id: Date.now().toString(), ...e }, ...prev[column]],
+    }));
+  }, []);
   const onCloseModal = useCallback(() => {
     setIsModalVisible(false);
     setSelectedTask(null);
@@ -171,17 +201,44 @@ const KanbanBoard: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <Stack direction="row" spacing={2}>
           <TextField
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            placeholder="Add a new task"
+            placeholder="Search"
             variant="outlined"
             size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             fullWidth
             sx={{ maxWidth: 400 }}
           />
-          <Button type="submit" variant="contained" startIcon={<AddIcon />}>
-            Add Task
-          </Button>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <FormControl size="small">
+              <Select
+                multiple
+                displayEmpty
+                value={[""]}
+                sx={{ minWidth: 120 }}
+                startAdornment={<SearchIcon sx={{ mr: 1 }} />}
+              >
+                <MenuItem value="">Filters</MenuItem>
+                {Priorities.map((priority, id) => (
+                  <MenuItem key={id}>
+                    <FormControlLabel
+                      checked={priorityFilters.includes(priority.key)}
+                      control={<Checkbox />}
+                      onChange={() => {
+                        setPriorityFilters((prev) => {
+                          return priorityFilters.includes(priority.key)
+                            ? prev.filter((p) => p !== priority.key)
+                            : [...prev, priority.key];
+                        });
+                      }}
+                      label={priority.key}
+                      value={priority.key}
+                    />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Stack>
       </Box>
 

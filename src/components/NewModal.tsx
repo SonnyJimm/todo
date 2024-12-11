@@ -11,9 +11,9 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Column, PriorityKey, Task } from "../types/kanban";
 import { Priorities } from "../utils/constants";
+import { validationSchema } from "../utils/helpers";
 
 interface NewModalProps {
   isOpen: boolean;
@@ -37,19 +37,6 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .required("Title is required")
-    .min(3, "Title must be at least 3 characters")
-    .max(50, "Title must be less than 50 characters"),
-  priority: Yup.string()
-    .required("Priority is required")
-    .oneOf(Priorities.map((priority) => priority.key)),
-  description: Yup.string()
-    .max(1000, "Description must be less than 1000 characters")
-    .required("Description is required"),
-});
 
 const NewModal = ({
   isOpen,
